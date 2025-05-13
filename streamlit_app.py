@@ -34,14 +34,20 @@ except Exception as e:
 
 
 # Search bar input
-search_query = st.text_input("🔍 Search within results (Order ID / Status):").lower()
-if search_query:
+search_input = st.text_input("🔍 Enter Customer ID(s) or Order Status (use commas or spaces to separate multiple):").lower()
+
+if search_input:
+    # Normalize and split input
+    search_terms = [term.strip() for term in search_input.replace(',', ' ').split()]
+    
+    # Filter by matching customer_id or order_status
     filtered_df = df[
-        df['customer_id'].astype(str).str.contains(search_query) |
-        df['order_status'].str.lower().str.contains(search_query)
+        df['customer_id'].astype(str).str.lower().isin(search_terms) |
+        df['order_status'].str.lower().isin(search_terms)
     ]
+
     if not filtered_df.empty:
         st.subheader("🔍 Search Results")
         st.dataframe(filtered_df[columns_to_display])
     else:
-        st.warning("No results found for your search query.")
+        st.warning("⚠️ No results found for your search query.")
